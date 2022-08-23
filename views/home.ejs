@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="styles.css" type="text/css">
+</head>
+<body>
+    <section class='section-center'>
+        <form class='input-form' action="/api/uploadFile" enctype="multipart/form-data" method="post" >
+          <h3>Upload SpreedSheet Data To DataBase</h3>
+          <h4>Attach .xlxs file</h4>
+          <div class='form-control'>
+            <input
+              type='file'
+              class='input_file'
+              name="uploadfile"
+              accept='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel'
+              placeholder='Attach .xlxs file'  
+            ></input>
+            <button type='submit' class='submit-btn'>
+              submit
+            </button>
+          </div>
+        </form>
+      </section>
+</body>
+</html>
