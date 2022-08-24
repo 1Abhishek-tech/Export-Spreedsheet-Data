@@ -2,6 +2,7 @@ var excelToJson = require('convert-excel-to-json');
 const fs = require('fs')
 const path = require('path')
 const CandidateData = require('../model/CandidateData');
+const async = require('async');
 
 const upload_data = async (req, res) => { // upload file data to database
 
@@ -38,24 +39,57 @@ const upload_data = async (req, res) => { // upload file data to database
         }]
     });
     // console.log(excelData.Sheet1);
-    let result = [];
-    excelData.Sheet1.forEach(async obj => {
-        // console.log(obj)
-        let user = await CandidateData.findOne({ email: obj.email })
-        if (!user) {
-            result.push(obj)
+    var result = [];
+    async.eachSeries(excelData.Sheet1, function (item, callback) {
+        CandidateData.findOne({ email: item.email }, function (err, data) {
+            if (err) {
+                console.log(err);
+            } else {
+                if (data) {
+                    console.log('data already exists');
+                    callback();
+                } else {
+                    const candidateData = new CandidateData({
+                        name: item.name,
+                        email: item.email,
+                        mobile: item.mobile,
+                        dob: item.dob,
+                        work_experience: item.work_experience,
+                        resume_title: item.resume_title,
+                        current_location: item.current_location,
+                        postal_address: item.postal_address,
+                        current_employer: item.current_employer,
+                        current_designation: item.current_designation
+                    });
+                    candidateData.save(function (err) {
+                        if (err) {
+                            console.log(err);
+                            callback(err);
+                        } else {
+                            result.push(item);
+                            callback();
+                        }
+                    },
+                    );
+                }
+            }
         }
-        else {
-            console.log('Email already exists : ', obj.email)
+        );
+    }, function (err) {
+        if (err) {
+            console.log(err);
+            res.status(500).json({
+                message: 'Some error occurred'
+            });
+        } else {
+            res.status(200).json({
+                message: 'File uploaded successfully',
+                data: result
+            });
         }
-    })
-    await CandidateData.insertMany(result)
+    }
+    );
     fs.unlinkSync(file);
-
-    res.status(200).json({
-        message: 'File uploaded successfully'
-    });
-
 }
 
 module.exports = {
